@@ -1,0 +1,17 @@
+{
+  "name": "svet-zelena",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Hravá mapa světa: odkud se bere elektřina, 2000 → dnes.",
+  "scripts": {
+    "server": "node tools/server.mjs 8123",
+    "data": "node tools/stahni-data.mjs",
+    "zeme": "node tools/zeme.mjs data/zdroj/country-codes.csv tools/iso.json web/data/zeme.json",
+    "video": "node tools/natoc-video.mjs"
+  },
+  "devDependencies": {
+    "ffmpeg-static": "^5.2.0",
+    "puppeteer-core": "^23.11.1"
+  }
+}

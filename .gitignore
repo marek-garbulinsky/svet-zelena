@@ -1,0 +1,4 @@
+node_modules/
+build/
+# stažená surová data: velká a kdykoli znovu stažitelná (viz tools/stahni-data.mjs)
+data/zdroj/

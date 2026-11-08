@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Svět zelená</title>
+<meta name="description" content="Hravá mapa světa: odkud se bere elektřina, 2000 → dnes. Čisté zdroje proti uhlí.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
+<link rel="stylesheet" href="styl.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+</head>
+<body>
+<div class="wrap">
+<div class="top">
+  <div><h1 id="nazev">🌍 Svět zelená</h1><div class="sub" id="podtitul"></div></div>
+  <div class="roh">
+    <button class="jaz" id="jaz"></button>
+    <div class="year" id="year">2000</div>
+  </div>
+</div>
+
+<div class="mapbox" id="box">
+  <svg id="map" viewBox="0 0 960 500"></svg>
+  <div class="caption" id="cap"></div>
+  <div class="zoom"><button data-z="world" class="on" id="zWorld"></button><button data-z="eu" id="zEu"></button></div>
+  <div class="pop" id="pop"></div>
+  <button class="sunbtn" id="sunbtn"></button>
+  <div class="sqlab" id="sqlab" style="display:none"></div>
+</div>
+<div class="videotit" id="videotit"></div>
+
+<div class="ctrl">
+  <button class="play" id="play">▶</button>
+  <input type="range" id="slider" min="2000" max="2025" step="0.05" value="2000">
+</div>
+<div class="legend" id="legend"></div>
+
+<div class="cards">
+  <div class="card"><div class="k" id="kVlakyK"></div><div class="big" id="cTrains">–</div><div class="trains" id="cTrainRow"></div></div>
+  <div class="card"><div class="k" id="kZemeK"></div><div class="big" id="cEarth">–</div><div class="k" id="cEarthSub"></div></div>
+  <div class="card"><div class="k" id="kCistaK"></div><div class="big" id="cClean">–</div><div class="bar" id="cBar"></div><div class="k" id="cCleanSub"></div></div>
+</div>
+
+<div class="match">
+  <h3 id="zapasNazev"></h3>
+  <div class="teams">
+    <div class="team" id="tClean"><div class="ico">🌞</div><div><div class="pct" id="mClean">–</div><div class="nm" id="nmClean"></div></div></div>
+    <div class="vs">VS</div>
+    <div class="team right" id="tDirty"><div class="ico">🏭</div><div><div class="pct" id="mDirty">–</div><div class="nm" id="nmDirty"></div></div></div>
+  </div>
+  <div class="rope"><div class="line"></div><div class="mid"></div><div class="knot" id="knot"></div></div>
+  <div class="comment" id="mComment"></div>
+  <svg id="trend" viewBox="0 0 600 170"></svg>
+  <div class="predict" id="mPredict"></div>
+</div>
+
+<div class="conts">
+  <h3 id="kontNazev"></h3>
+  <div class="k" id="kontPodtitul"></div>
+  <div class="race" id="race"></div>
+  <div class="duelpick" id="duelpick"></div>
+  <div class="cduel" id="cduel"></div>
+  <div class="comment" id="cComment"></div>
+</div>
+
+<div class="suncard"><div class="sun">☀️</div><div>
+  <div class="k" style="color:#e9d9a8" id="slunceK"></div>
+  <div class="big" id="sunCount">0</div>
+  <div class="k" style="color:#bfae7a" id="slunceSub"></div></div></div>
+
+<p class="note" id="pozn1"></p>
+<p class="note" id="pozn2"></p>
+<p class="note" id="pozn3"></p>
+</div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

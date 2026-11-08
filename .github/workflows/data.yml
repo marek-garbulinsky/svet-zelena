@@ -1,0 +1,36 @@
+# Jednou měsíčně stáhne nová data z Emberu a commitne přepočítaný JSON.
+# Když se nic nezměnilo nebo kontroly neprojdou, nic se necommitne.
+name: data
+
+on:
+  schedule:
+    - cron: '17 4 5 * *'   # pátého v měsíci ve 4:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  obnov:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Stáhnout a přepočítat
+        run: node tools/stahni-data.mjs
+
+      - name: Commitnout, když se data změnila
+        run: |
+          if git diff --quiet -- web/data/elektrina.json; then
+            echo "data beze změny"
+            exit 0
+          fi
+          rok=$(node -p "require('./web/data/elektrina.json').rok1")
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/data/elektrina.json
+          git commit -m "Data z Emberu obnovena (do roku $rok)"
+          git push
