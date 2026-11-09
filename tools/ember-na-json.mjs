@@ -60,6 +60,7 @@ for (const r of data) {
 		case 'Coal': z.uhli = cis(r, iPodil); z.uhliTwh = cis(r, iTwh); break;
 		case 'Solar': z.slunce = cis(r, iPodil); break;
 		case 'Wind': z.vitr = cis(r, iPodil); break;
+		case 'Demand': z.poptavkaTwh = cis(r, iTwh); break;
 		case 'Total generation':
 			z.intenzita = cis(r, iIntenzita);
 			z.celkemTwh = cis(r, iTwh);
@@ -115,12 +116,17 @@ for (const [oblast, podleRoku] of sber) {
 	// zbytečně nafoukla; tohle jedno číslo stačí kvízu na to, aby nestavěl
 	// souboje mezi mikrostáty, o kterých nikdo nic neví.
 	const velikost = rada(podleRoku, ['celkemTwh'], [z0]);
+	// Roční spotřeba elektřiny — stránka z ní počítá sluneční počítadlo pro
+	// zemi návštěvníka, ne natvrdo pro Česko.
+	const poptavka = rada(podleRoku, ['poptavkaTwh'], [z0]);
 	vystupZeme[meta.kod] = {
 		cs: meta.cs,
 		en: meta.en,
 		vlajka: meta.vlajka,
 		do: r.do,
 		twh: velikost ? velikost.rada.at(-1)[0] : 0,
+		a2: meta.a2 || '',
+		spotreba: poptavka ? poptavka.rada.at(-1)[0] : 0,
 		r: r.rada,
 	};
 }
@@ -128,7 +134,7 @@ for (const [oblast, podleRoku] of sber) {
 // ---------- svět ----------
 const svetSur = sber.get('World');
 if (!svetSur) throw new Error('v CSV není řádek za celý svět');
-const svet = rada(svetSur, ['cista', 'uhli', 'intenzita', 'uhliTwh', 'celkemTwh', 'emiseMt'], [z1, z1, z0, z0, z0, z0]);
+const svet = rada(svetSur, ['cista', 'uhli', 'intenzita', 'uhliTwh', 'celkemTwh', 'emiseMt', 'poptavkaTwh'], [z1, z1, z0, z0, z0, z0, z0]);
 
 // ---------- kontinenty ----------
 // Regiony Emberu: Latinská Amerika je včetně Karibiku, Blízký východ vede Ember

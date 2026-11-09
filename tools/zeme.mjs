@@ -44,6 +44,7 @@ const zeme = {};
 for (const [a3, [num, a2, cs]] of Object.entries(iso)) {
 	zeme[a3] = {
 		kod: String(num).padStart(3, '0'),
+		a2: (a2 || '').toUpperCase(),
 		cs,
 		en: anglicky[a3] || cs,
 		vlajka: vlajka(a2),

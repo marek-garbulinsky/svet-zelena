@@ -3,7 +3,7 @@
 // Data přicházejí hotová z data/elektrina.json (vyrábí je tools/zpracuj-data.mjs
 // z ročního CSV od Our World in Data). Stránka sama nic nepočítá z surových dat,
 // jen z řad hodnot po letech plynule interpoluje a kreslí.
-import { T, TK, UDALOSTI, f, roky, cislo, vyjmenuj, vyberJazyk, JAZYKY } from './texty.js';
+import { T, TK, UDALOSTI, f, roky, dny, cislo, vyjmenuj, vyberJazyk, JAZYKY } from './texty.js';
 
 const P = new URLSearchParams(location.search);
 const VIDEO = P.has('video');
@@ -47,6 +47,38 @@ const sol = (kod, y) => interp(Z[kod].r, y, 3);
 const vit = (kod, y) => interp(Z[kod].r, y, 4);
 const wv = (y, i) => interp(DATA.svet, y, i);
 const kv = (k, y, i) => interp(KONT[k].r, y, i);
+
+// ---------- země návštěvníka ----------
+// Všechno, co dřív bylo natvrdo o Česku (sluneční počítadlo, velikost
+// slunečního čtverce), se počítá pro zemi, odkud se člověk dívá. Bere se
+// z jazyka prohlížeče — žádný dotaz na server, žádné sledování. Když se země
+// poznat nedá nebo o ní nemáme spotřebu, bere se celý svět.
+const PODLE_A2 = {};
+for (const [kod, z] of Object.entries(DATA.zeme)) if (z.a2) PODLE_A2[z.a2] = kod;
+
+function mojeZeme() {
+	const kandidati = [];
+	for (const tag of (navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || ''])) {
+		if (!tag) continue;
+		const m = /[-_]([A-Za-z]{2})(?:[-_]|$)/.exec(tag);
+		if (m) kandidati.push(m[1].toUpperCase());
+		// „cs“ bez země: Intl odvodí nejpravděpodobnější region (cs → CZ, fi → FI).
+		try {
+			const r = new Intl.Locale(tag).maximize().region;
+			if (r) kandidati.push(r.toUpperCase());
+		} catch (e) { /* starý prohlížeč, nevadí */ }
+	}
+	for (const a2 of kandidati) {
+		const kod = PODLE_A2[a2];
+		if (kod && DATA.zeme[kod] && DATA.zeme[kod].spotreba > 0) return kod;
+	}
+	return null;
+}
+const MOJE = mojeZeme();
+/// Spotřeba elektřiny za rok v joulech (1 TWh = 3,6 PJ).
+const MOJE_TWH = MOJE ? DATA.zeme[MOJE].spotreba : DATA.svet.at(-1)[6];
+const MOJE_J = MOJE_TWH * 3.6e15;
+const mojeJmeno = () => (MOJE ? nazev(DATA.zeme[MOJE]) : t.slunceSvet);
 
 const barva = d3.scaleLinear().domain([0, 50, 100]).range(['#b5482f', '#e0b44a', '#3fae5f']).clamp(true);
 const nazev = (o) => (jazyk === 'cs' ? o.cs : o.en);
@@ -194,6 +226,17 @@ svg.on('click', skryjPopis);
 // ---------- sluneční čtverec ----------
 svg.insert('defs', ':first-child').html(`<pattern id="panels" width="4" height="4" patternUnits="userSpaceOnUse">
   <rect width="4" height="4" fill="#1d3f73"/><path d="M0 0H4V4" fill="none" stroke="#7fb2ff" stroke-width=".35"/></pattern>`);
+// Rozloha země se spočítá z mapových dat (d3.geoArea vrací steradiány),
+// takže na „asi 5× Česko“ není potřeba žádný další dataset.
+const KM2_NA_STERADIAN = 6371 * 6371; // poloměr Země na druhou
+function rozlohaMoje() {
+	if (!MOJE) return 0;
+	const utvar = zemePole.find((x) => x.id === MOJE);
+	return utvar ? d3.geoArea(utvar) * KM2_NA_STERADIAN : 0;
+}
+const MOJE_KM2 = rozlohaMoje();
+const SQ_KM2 = 630 * 630;
+
 let sqStred = [9, 23.5];
 let sqZap = false;
 const sqPath = g.append('path').attr('class', 'sq').style('display', 'none');
@@ -229,7 +272,13 @@ function nakresliSq() {
 	sqPath.attr('d', path(sqGeo(sqStred)));
 	const host = zemePole.find((x) => d3.geoContains(x, sqStred));
 	const nm = host && Z[host.id] ? nazev(Z[host.id]) : (host ? host.properties.name : t.ctverecMore);
-	sqlab.innerHTML = f(t.ctverecPopis, nm);
+	// Srovnání s rozlohou země dává smysl, jen když je čtverec aspoň poloviční;
+	// proti Rusku nebo Spojeným státům by to byl zlomek, který nic neřekne.
+	const pomer = MOJE_KM2 > 0 ? SQ_KM2 / MOJE_KM2 : 0;
+	const doplnek = pomer >= 0.5
+		? f(t.ctverecZeme, cislo(pomer, jazyk, pomer < 3 ? 1 : 0), mojeJmeno())
+		: '';
+	sqlab.innerHTML = f(t.ctverecPopis, doplnek, nm);
 	umistiStitek();
 }
 sqPath.call(d3.drag().on('start', (e) => e.sourceEvent.stopPropagation()).on('drag', (e) => {
@@ -257,14 +306,17 @@ window.addEventListener('resize', umistiStitek);
 
 // ---------- sluneční počítadlo ----------
 const SLUNCE_W = 8.9e16;
-const CESKO_J = 1.6e18;
 const t0 = performance.now();
 (function tik() {
 	if (!VIDEO) {
-		const let_ = (performance.now() - t0) / 1000 * SLUNCE_W / CESKO_J;
-		el('sunCount').textContent = let_ < 10
-			? cislo(let_, jazyk, 1) + (jazyk === 'cs' ? ' roku' : ' years')
-			: roky(Math.floor(let_), jazyk);
+		// Velké země spotřebují tolik, že by počítadlo v rocích dlouho stálo
+		// na nule; do roka se proto počítá ve dnech.
+		const let_ = (performance.now() - t0) / 1000 * SLUNCE_W / MOJE_J;
+		el('sunCount').textContent = let_ < 1
+			? dny(Math.floor(let_ * 365), jazyk)
+			: let_ < 10
+				? cislo(let_, jazyk, 1) + (jazyk === 'cs' ? ' roku' : ' years')
+				: roky(Math.floor(let_), jazyk);
 	}
 	requestAnimationFrame(tik);
 })();
@@ -571,10 +623,10 @@ function nasazTexty() {
 	nOsaPopis.text(t.novaOsa);
 	el('kontNazev').textContent = t.kontNazev;
 	el('kontPodtitul').textContent = t.kontPodtitul;
-	el('slunceK').textContent = t.slunceK;
+	el('slunceK').textContent = f(t.slunceK, mojeJmeno());
 	el('slunceSub').textContent = t.slunceSub;
 	el('sunbtn').textContent = sqZap ? t.ctverecSchovat : t.ctverecTlacitko;
-	el('pozn1').textContent = t.pozn1;
+	el('pozn1').textContent = f(t.pozn1, mojeJmeno(), cislo(MOJE_TWH, jazyk));
 	el('pozn2').textContent = t.pozn2;
 	const [rr, mm, dd] = DATA.vyrobeno.split('-');
 	el('pozn3').innerHTML = f(t.pozn3, Y1, jazyk === 'cs' ? `${+dd}. ${+mm}. ${rr}` : DATA.vyrobeno);

@@ -23,6 +23,15 @@ export function roky(n, jazyk) {
 	return n + ' let';
 }
 
+/// České „1 den, 2 dny, 5 dní“. U velkých zemí počítadlo roky nestíhá.
+export function dny(n, jazyk) {
+	if (jazyk !== 'cs') return n === 1 ? '1 day' : n + ' days';
+	const z = n % 100;
+	if (z === 1) return n + ' den';
+	if (z >= 2 && z <= 4) return n + ' dny';
+	return n + ' dní';
+}
+
 export function cislo(n, jazyk, des = 0) {
 	return n.toLocaleString(jazyk === 'cs' ? 'cs-CZ' : 'en-GB', {
 		minimumFractionDigits: des,
@@ -31,7 +40,7 @@ export function cislo(n, jazyk, des = 0) {
 }
 
 export const UDALOSTI = [
-	[2000, { cs: '⚛️ Česko spouští Temelín', en: '⚛️ Czechia starts up the Temelín nuclear plant' }],
+	[2000, { cs: '⚛️ Česko spouští Temelín', en: '⚡ The world runs on 15,325 TWh of electricity, 35 % of it clean' }],
 	[2008, { cs: '🌬️ Větrníky a solár začínají zlevňovat', en: '🌬️ Wind and solar start getting cheap' }],
 	[2011, { cs: '🌊 Fukušima: Japonsko vypíná jaderné elektrárny', en: '🌊 Fukushima: Japan shuts down its reactors' }],
 	[2015, { cs: '🤝 Pařížská dohoda o klimatu', en: '🤝 The Paris climate agreement' }],
@@ -100,11 +109,13 @@ export const T = {
 		novaOsa: '% přírůstku spotřeby',
 		novaPozn: 'Přes sto procent se svět dostal i dřív, v letech {0}. Tehdy ale spotřeba vyrostla jen o {1} TWh, kdežto v roce {2} o {3}. Šedé roky ({4}) do srovnání nepatří: spotřeba v nich klesla, protože přišla krize a covid.',
 
-		slunceK: 'Od chvíle, kdy jsi otevřel tuhle stránku, poslalo Slunce na Zemi tolik energie, kolik Česko spotřebuje za',
+		slunceK: 'Od chvíle, kdy jsi otevřel tuhle stránku, poslalo Slunce na Zemi tolik energie, kolik {0} spotřebuje elektřiny za',
+		slunceSvet: 'celý svět',
 		slunceSub: 'Celoroční spotřebu celého lidstva Slunce dodá zhruba za 2 hodiny. Využíváme z toho zlomek promile.',
 		ctverecTlacitko: '☀️ Kolik Sahary by stačilo?',
 		ctverecSchovat: '✕ Schovat čtverec',
-		ctverecPopis: '<b>☀️ 630 × 630 km solárních panelů</b><br>by nahradilo všechna fosilní paliva světa. Je to asi 5× Česko nebo 4 % Sahary.<br><span class="mut">Teď nad: {0} · přetáhni mě jinam</span>',
+		ctverecPopis: '<b>☀️ 630 × 630 km solárních panelů</b><br>by nahradilo všechna fosilní paliva světa. Je to 4 % Sahary{0}.<br><span class="mut">Teď nad: {1} · přetáhni mě jinam</span>',
+		ctverecZeme: ' nebo asi {0}× {1}',
 		ctverecMore: 'moře',
 
 		detailCiste: 'čisté',
@@ -123,7 +134,7 @@ export const T = {
 			'☕ Za rok vaření vody v konvici vznikne tolik CO₂ jako při <b>{0} km</b> jízdy autem.',
 		],
 
-		pozn1: 'Slunce: na zemský povrch dopadá v průměru asi 89 000 TW. Česko spotřebuje zhruba 1,6 EJ primární energie ročně. Sluneční čtverec: náhrada fosilních paliv (asi 520 EJ) po elektrifikaci odpovídá zhruba 60 000 TWh elektřiny; při 150 kWh/m² pozemku a rok to dá asi 400 000 km², tedy čtverec 630 × 630 km.',
+		pozn1: 'Slunce: na zemský povrch dopadá v průměru asi 89 000 TW. {0} spotřebuje zhruba {1} TWh elektřiny ročně. Sluneční čtverec: náhrada fosilních paliv (asi 520 EJ) po elektrifikaci odpovídá zhruba 60 000 TWh elektřiny; při 150 kWh/m² pozemku a rok to dá asi 400 000 km², tedy čtverec 630 × 630 km.',
 		pozn2: 'Kontinenty podle regionů Emberu, Latinská Amerika včetně Karibiku, Blízký východ zvlášť.',
 		pozn3: 'Data: <a href="https://ember-energy.org/data/yearly-electricity-data/">Ember – Yearly electricity data</a>, licence CC BY 4.0. Čisté = obnovitelné zdroje + jádro. U zemí bez dat za poslední rok se drží poslední známá hodnota. Přepočet na vlaky: 1 TWh z černého uhlí ≈ 400 000 t uhlí; vlak má 50 vagónů po 60 t a je dlouhý asi 800 m. Data za {0}, naposledy obnovená {1}.',
 	},
@@ -185,11 +196,13 @@ export const T = {
 		novaOsa: '% of demand growth',
 		novaPozn: 'The world passed one hundred per cent before, in {0}. But demand then grew by only {1} TWh, against {3} in {2}. The grey years ({4}) do not belong in the comparison: demand fell, because of the financial crisis and covid.',
 
-		slunceK: 'Since you opened this page, the Sun has sent the Earth as much energy as Czechia uses in',
+		slunceK: 'Since you opened this page, the Sun has sent the Earth the energy {0} uses as electricity in',
+		slunceSvet: 'the whole world',
 		slunceSub: 'The Sun delivers humanity’s entire yearly energy use in about two hours. We capture a tiny fraction of a per mille.',
 		ctverecTlacitko: '☀️ How much Sahara would do?',
 		ctverecSchovat: '✕ Hide the square',
-		ctverecPopis: '<b>☀️ 630 × 630 km of solar panels</b><br>would replace every fossil fuel on Earth. That is about 4 % of the Sahara.<br><span class="mut">Now over: {0} · drag me somewhere else</span>',
+		ctverecPopis: '<b>☀️ 630 × 630 km of solar panels</b><br>would replace every fossil fuel on Earth. That is 4 % of the Sahara{0}.<br><span class="mut">Now over: {1} · drag me somewhere else</span>',
+		ctverecZeme: ', or about {0}× {1}',
 		ctverecMore: 'the sea',
 
 		detailCiste: 'clean',
@@ -208,7 +221,7 @@ export const T = {
 			'☕ A year of boiling the kettle emits as much CO₂ as <b>{0} km</b> of driving.',
 		],
 
-		pozn1: 'The Sun: about 89,000 TW reaches the Earth’s surface on average. Czechia uses roughly 1.6 EJ of primary energy a year. The solar square: replacing fossil fuels (about 520 EJ) after electrification needs some 60,000 TWh of electricity; at 150 kWh per m² of land per year that is about 400,000 km², a square of 630 × 630 km.',
+		pozn1: 'The Sun: about 89,000 TW reaches the Earth’s surface on average. {0} uses roughly {1} TWh of electricity a year. The solar square: replacing fossil fuels (about 520 EJ) after electrification needs some 60,000 TWh of electricity; at 150 kWh per m² of land per year that is about 400,000 km², a square of 630 × 630 km.',
 		pozn2: 'Continents follow Ember’s regions: Latin America includes the Caribbean, the Middle East is counted separately.',
 		pozn3: 'Data: <a href="https://ember-energy.org/data/yearly-electricity-data/">Ember – Yearly electricity data</a>, CC BY 4.0. Clean = renewables + nuclear. Countries without data for the latest year keep their last known value. Trainloads: 1 TWh of hard coal ≈ 400,000 t; a train has 50 wagons of 60 t and is about 800 m long. Data through {0}, last updated {1}.',
 	},
