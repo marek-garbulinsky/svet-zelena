@@ -109,7 +109,18 @@ for (const [oblast, podleRoku] of sber) {
 	if (!meta || !meta.kod || meta.kod === '000') { bezKodu++; continue; }
 	const r = rada(podleRoku, POL, ZAOKR);
 	if (!r) continue;
-	vystupZeme[meta.kod] = { cs: meta.cs, en: meta.en, vlajka: meta.vlajka, do: r.do, r: r.rada };
+	// Kolik země vyrobí elektřiny, poslední známý rok. Řada po letech by soubor
+	// zbytečně nafoukla; tohle jedno číslo stačí kvízu na to, aby nestavěl
+	// souboje mezi mikrostáty, o kterých nikdo nic neví.
+	const velikost = rada(podleRoku, ['celkemTwh'], [z0]);
+	vystupZeme[meta.kod] = {
+		cs: meta.cs,
+		en: meta.en,
+		vlajka: meta.vlajka,
+		do: r.do,
+		twh: velikost ? velikost.rada.at(-1)[0] : 0,
+		r: r.rada,
+	};
 }
 
 // ---------- svět ----------

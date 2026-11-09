@@ -24,7 +24,7 @@ Stránka je obyčejný statický web: HTML, CSS a kousek JavaScriptu, data jako 
 | `tools/zeme.mjs` | Postaví `zeme.json`. Pouští se jen když přibude země. |
 | `tools/natoc-video.mjs` | Natočí svislé video 9:16 pro TikTok a Shorts. |
 | `tools/server.mjs` | Malý statický server pro vývoj. |
-| `prototypy/kviz.html` | Rozpracovaný denní kvíz „Kdo je čistší?“. **Běží zatím na odhadnutých datech**, proto není součástí webu. |
+| `web/kviz.html`, `kviz.css`, `kviz.js` | Denní kvíz „Kdo je čistší?“ — osm soubojů na den, pro všechny stejných, ze skutečných dat. |
 
 ## Spuštění
 
@@ -34,6 +34,12 @@ npm run server     # http://localhost:8123/
 ```
 
 Jazyk se bere z prohlížeče, přepíná tlačítkem a jde vynutit adresou: `?lang=cs`, `?lang=en`.
+Volba se pamatuje a přenáší se i mezi mapou a kvízem.
+
+Kvíz je na `/kviz.html`. Souboje se losují z data, ne náhodně, takže je celý svět má
+na daný den stejné a výsledek se dá sdílet čtverečky jako u Wordle. Hraje se jen
+s padesáti největšími výrobci elektřiny, kteří mají data za poslední rok — o zemích
+bez letošních čísel by kvíz tvrdil něco, co neví.
 
 ## Data
 

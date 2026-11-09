@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Who’s cleaner?</title>
+<meta name="description" content="A daily eight-duel quiz: which country has cleaner electricity? Real data from Ember.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
+<link rel="stylesheet" href="kviz.css">
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1 id="nazev"></h1>
+  <div class="roh">
+    <a class="odkaz" href="./" id="naMapu"></a>
+    <button class="odkaz" id="jaz"></button>
+    <span class="pill" id="streak"></span>
+  </div>
+</header>
+
+<div id="game">
+  <div class="progress" id="prog"></div>
+  <div class="q" id="q"></div>
+  <div class="duel">
+    <div class="cty" id="c0"></div>
+    <div class="cty" id="c1"></div>
+  </div>
+  <div class="fact" id="fact"></div>
+  <button class="btn hidden" id="next"></button>
+</div>
+
+<div id="end" class="end hidden">
+  <div class="mut" style="margin-top:10px" id="dnesni"></div>
+  <div class="big" id="score"></div>
+  <div class="grid-share" id="emo"></div>
+  <div id="verdict" style="margin-bottom:6px"></div>
+  <button class="btn" id="copy"></button>
+  <button class="btn sec" id="again"></button>
+  <div class="rank"><h3 id="zebricekNadpis"></h3><div id="rank"></div>
+  <div class="legend" id="legenda"></div></div>
+</div>
+
+<p class="note" id="pozn"></p>
+</div>
+<script type="module" src="kviz.js"></script>
+</body>
+</html>

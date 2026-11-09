@@ -1,0 +1,59 @@
+/* Kvíz běží na stejné tmavé paletě jako mapa — je to jedna stránka, jen dvě
+   obrazovky, a bílý kvíz vedle tmavé mapy vypadal jako cizí web. */
+:root{--bg:#0f1a24;--card:#17242f;--fg:#eaf2f7;--mut:#8ea3b3;--line:#24384a;--ok:#4cc27a;--bad:#ec7558;--acc:#2f9e5a;--uhli:#6b6b6b;--plyn:#c9a24a}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--fg);min-height:100vh}
+.wrap{max-width:560px;margin:0 auto;padding:18px 14px 40px}
+.mut{color:var(--mut)}
+a{color:var(--mut)}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+h1{font-size:22px;margin:0}
+.roh{display:flex;align-items:center;gap:8px}
+.odkaz{font-size:12px;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:5px 10px;color:var(--mut);text-decoration:none;font-family:inherit;cursor:pointer}
+.odkaz:hover{color:var(--fg)}
+.pill{font-size:13px;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:4px 10px;color:var(--mut)}
+.progress{display:flex;gap:5px;margin-bottom:16px}
+.progress i{flex:1;height:7px;border-radius:9px;background:var(--line)}
+.progress i.ok{background:var(--ok)}.progress i.bad{background:var(--bad)}.progress i.cur{background:var(--mut)}
+.q{font-size:19px;font-weight:650;text-align:center;margin:4px 0 14px}
+.duel{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cty{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:14px 10px;text-align:center;cursor:pointer;transition:transform .12s,border-color .2s;user-select:none}
+.cty:hover{transform:translateY(-2px)}
+.cty:active{transform:scale(.98)}
+.cty.locked{cursor:default;transform:none}
+.cty.right{border-color:var(--ok)}.cty.wrong{border-color:var(--bad)}
+.flag{font-size:34px;line-height:1}
+.name{font-weight:650;margin:4px 0 6px;min-height:44px;display:flex;align-items:center;justify-content:center}
+.av{height:120px;display:flex;align-items:center;justify-content:center}
+.stats{font-size:13px;color:var(--mut);min-height:46px;margin-top:6px}
+.stats b{color:var(--fg)}
+.bar{display:flex;height:8px;border-radius:9px;overflow:hidden;margin-top:6px;background:var(--line)}
+.bar span{display:block;height:100%}
+.fact{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:14px;font-size:15px;display:none}
+.fact.show{display:block;animation:pop .3s}
+.btn{display:block;width:100%;margin-top:12px;padding:13px;border:0;border-radius:12px;background:var(--acc);color:#fff;font:inherit;font-weight:650;cursor:pointer}
+.btn.sec{background:var(--card);color:var(--fg);border:1px solid var(--line)}
+.hidden{display:none}
+.end{text-align:center}
+.big{font-size:52px;font-weight:800;margin:6px 0;font-variant-numeric:tabular-nums}
+.grid-share{font-size:24px;letter-spacing:2px;margin:6px 0 2px}
+.rank{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;margin-top:16px;text-align:left}
+.rank h3{margin:4px 6px 8px;font-size:15px}
+.rk{display:grid;grid-template-columns:34px 26px 1fr 52px 64px;align-items:center;gap:6px;padding:3px 6px;font-size:14px}
+.rk .mini{display:flex;justify-content:center}
+.rk .cis{text-align:right;color:var(--mut);font-variant-numeric:tabular-nums}
+.legend{font-size:12px;color:var(--mut);display:flex;gap:12px;justify-content:center;margin-top:8px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.note{font-size:12px;color:var(--mut);text-align:center;margin-top:16px}
+@keyframes pop{from{transform:scale(.96);opacity:0}to{transform:none;opacity:1}}
+@keyframes cough{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes puff{0%{transform:translateY(0) scale(.6);opacity:0}30%{opacity:.85}100%{transform:translateY(-34px) scale(1.25);opacity:0}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.coughing{animation:cough .6s ease-in-out 3}
+.happy{animation:bob 2s ease-in-out infinite}
+.smoke circle{animation:puff 2.4s linear infinite}
+.smoke circle:nth-child(2){animation-delay:.8s}.smoke circle:nth-child(3){animation-delay:1.6s}
+@media (max-width:380px){
+  .rk{grid-template-columns:28px 22px 1fr 44px 56px;font-size:13px;gap:4px}
+  h1{font-size:19px}
+}

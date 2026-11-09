@@ -433,6 +433,8 @@ function nasazTexty() {
 	document.title = t.nazev.replace(/^\S+\s/, '');
 	el('podtitul').textContent = f(t.podtitul, Y0, Y1);
 	el('jaz').textContent = t.prepniJazyk;
+	el('naKviz').textContent = t.naKviz;
+	el('naKviz').href = 'kviz.html?lang=' + jazyk;
 	el('zWorld').textContent = t.svet;
 	el('zEu').textContent = t.evropa;
 	el('legend').innerHTML = `<span>${t.legendaUhelna}</span><div class="grad"></div><span>${t.legendaCista}</span>`
