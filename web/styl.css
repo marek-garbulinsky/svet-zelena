@@ -93,6 +93,10 @@ input[type=range]{flex:1;accent-color:var(--acc)}
 .predict{font-size:13px;color:var(--mut);margin-top:4px}
 .comment{font-size:14px;margin:6px 0 2px}
 .comment b{color:var(--fg)}
+.uspora .k{font-size:13px;color:var(--mut)}
+.usporaCislo{display:flex;align-items:baseline;gap:10px;margin:10px 0 2px}
+.usporaBig{font-size:34px;font-weight:800;color:var(--acc);font-variant-numeric:tabular-nums;line-height:1}
+#uspora{width:100%;height:auto;display:block;margin-top:4px}
 .videotit{display:none}
 
 @media (max-width:700px){
@@ -139,6 +143,19 @@ body.video .year{font-size:150px;letter-spacing:-6px;margin-top:6px;color:#fff}
 body.video .mapbox{flex:0 0 auto;margin:10px 24px 0;border-radius:28px;border-width:2px}
 body.video svg#map{width:100%;height:auto}
 body.video .caption{left:28px;top:28px;font-size:30px;padding:14px 20px;border-radius:18px;max-width:84%}
+/* Druhá scéna videa: místo mapy a závodu kontinentů jen graf ušetřeného CO₂.
+   Pouští se jako ?video=1&scena=emise. */
+body.video.emise .mapbox,body.video.emise .conts,body.video.emise .videotit{display:none!important}
+body.video.emise .uspora{display:block!important;order:2;margin:auto 24px;border-radius:28px;border-width:2px;padding:28px 32px}
+body.video.emise .uspora h3{font-size:42px;margin:0 0 14px}
+body.video.emise .uspora .k{font-size:25px;line-height:1.35}
+body.video.emise .usporaCislo{margin:22px 0 10px;gap:16px}
+body.video.emise .usporaBig{font-size:92px}
+body.video.emise .uspora .comment{font-size:30px;margin-top:20px}
+body.video.emise .uspora .predict{font-size:19px;line-height:1.4;margin-top:14px}
+body.video.emise #uspora text{font-size:15px}
+body.video .uspora{display:none}
+
 body.video .top{order:1}
 body.video .mapbox{order:2}
 body.video .conts{order:3;margin-top:auto}

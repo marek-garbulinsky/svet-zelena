@@ -6,7 +6,8 @@
 // další. Video tak vypadá stejně hladce i na pomalém počítači.
 //
 // Pouštět: node tools/natoc-video.mjs [--od 2000] [--do 2025] [--sekundy 16]
-//          [--fps 30] [--lang cs] [--kam svet|eu] [--ven build/svet-zelena.mp4]
+//          [--fps 30] [--lang cs] [--kam svet|eu] [--scena mapa|emise]
+//          [--ven build/svet-zelena.mp4]
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { spawn, spawnSync } from 'node:child_process';
@@ -26,10 +27,11 @@ const SEKUNDY = Number(V.sekundy ?? 16);
 const FPS = Number(V.fps ?? 30);
 const LANG = V.lang ?? 'cs';
 const KAM = V.kam ?? 'svet';
+const SCENA = V.scena ?? 'mapa';
 const PORT = Number(V.port ?? 8599);
 const SIRKA = 1080;
 const VYSKA = 1920;
-const VEN = resolve(KOREN, V.ven ?? `build/svet-zelena-${LANG}.mp4`);
+const VEN = resolve(KOREN, V.ven ?? `build/svet-zelena-${SCENA}-${LANG}.mp4`);
 const SNIMKY = resolve(KOREN, 'build/snimky');
 
 /// Chrome, který je na počítači nainstalovaný — puppeteer-core si žádný nestahuje.
@@ -77,7 +79,7 @@ const prohlizec = await puppeteer.launch({
 });
 const stranka = await prohlizec.newPage();
 await stranka.setViewport({ width: SIRKA, height: VYSKA, deviceScaleFactor: 1 });
-const adresa = `http://localhost:${PORT}/?video=1&lang=${LANG}&kam=${KAM}&rok=${OD}`;
+const adresa = `http://localhost:${PORT}/?video=1&lang=${LANG}&kam=${KAM}&scena=${SCENA}&rok=${OD}`;
 await stranka.goto(adresa, { waitUntil: 'networkidle0' });
 await stranka.waitForFunction('window.SZ && window.SZ.pripraveno', { timeout: 20000 });
 

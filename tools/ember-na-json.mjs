@@ -32,6 +32,7 @@ const iZdroj = S('Electricity source');
 const iPodil = S('Share of generation (%)');
 const iTwh = S('Generation (TWh)');
 const iIntenzita = S('Emissions intensity (gCO2e/kWh)');
+const iEmise = S('Emissions (MtCO2e)');
 
 const cis = (r, i) => {
 	const v = r[i];
@@ -62,6 +63,7 @@ for (const r of data) {
 		case 'Total generation':
 			z.intenzita = cis(r, iIntenzita);
 			z.celkemTwh = cis(r, iTwh);
+			z.emiseMt = cis(r, iEmise);
 			if (oblast === 'World' && z.intenzita !== null) maxRok = Math.max(maxRok, rok);
 			break;
 		default: break;
@@ -126,7 +128,7 @@ for (const [oblast, podleRoku] of sber) {
 // ---------- svět ----------
 const svetSur = sber.get('World');
 if (!svetSur) throw new Error('v CSV není řádek za celý svět');
-const svet = rada(svetSur, ['cista', 'uhli', 'intenzita', 'uhliTwh', 'celkemTwh'], [z1, z1, z0, z0, z0]);
+const svet = rada(svetSur, ['cista', 'uhli', 'intenzita', 'uhliTwh', 'celkemTwh', 'emiseMt'], [z1, z1, z0, z0, z0, z0]);
 
 // ---------- kontinenty ----------
 // Regiony Emberu: Latinská Amerika je včetně Karibiku, Blízký východ vede Ember
@@ -144,7 +146,7 @@ const vystupKont = {};
 for (const [klic, cs, en, emoji, nazev] of KONTINENTY) {
 	const sur = sber.get(nazev);
 	if (!sur) { console.warn('chybí region', nazev); continue; }
-	const r = rada(sur, ['cista', 'uhli'], [z1, z1]);
+	const r = rada(sur, ['cista', 'uhli', 'emiseMt'], [z1, z1, z0]);
 	if (r) vystupKont[klic] = { cs, en, emoji, r: r.rada };
 }
 

@@ -326,6 +326,147 @@ function nakresliZapas(y) {
 	bodD.attr('x', tx(y)).attr('y', ty(d) + 6);
 }
 
+// ---------- ušetřené CO₂ ----------
+// Nahoře dvě křivky: co by dnešní výroba elektřiny vypustila, kdyby se zdroje
+// pořád míchaly jako v roce 2000, a co vypouští doopravdy. Dole samotný rozdíl
+// mezi nimi — na ose od nuly je totiž těch pár procent mezi křivkami sotva
+// vidět, a přitom je to celá odpověď na otázku, jestli je z čisté energie
+// míň CO₂.
+//
+// Rozdíl umí být i záporný a taky dlouho byl: mezi lety 2001 a 2015 byl světový
+// mix špinavější než v roce 2000, nejvíc v roce 2007. Kdyby se ta plocha
+// barvila pořád zeleně, tvrdila by stránka patnáct let opak pravdy, tak se
+// podle znaménka přebarvuje.
+const US = { w: 600, h: 310, l: 54, r: 12 };
+const UH = { t: 14, b: 158 };  // horní graf
+const UD = { t: 196, b: 282 }; // dolní graf
+const usv = d3.select('#uspora');
+const INT0 = DATA.svet[0][2]; // g CO₂e/kWh v roce 2000
+const emise = (y) => wv(y, 5); // Mt za rok
+const kdyby = (y) => wv(y, 4) * INT0 / 1000; // Mt se starým mixem
+const uspora = (y) => kdyby(y) - emise(y);
+
+const ZELENA = '#4cc27a';
+const CERVENA = '#e8554a';
+const ux = d3.scaleLinear().domain([Y0, Y1]).range([US.l, US.w - US.r]);
+const uyMax = Math.ceil(Math.max(...vsechnyRoky.map(kdyby)) / 2000) * 2000;
+const uy = d3.scaleLinear().domain([0, uyMax]).range([UH.b, UH.t]);
+const vseU = vsechnyRoky.map(uspora);
+const udMax = Math.ceil(Math.max(...vseU) / 500) * 500;
+const udMin = Math.min(0, Math.floor(Math.min(...vseU) / 500) * 500);
+const ud = d3.scaleLinear().domain([udMin, udMax]).range([UD.b, UD.t]);
+
+const popisek = (sel, barva = '#8ea3b3', velikost = 11) => sel.attr('font-size', velikost).attr('fill', barva);
+
+usv.append('g').selectAll('line').data(uy.ticks(4).filter((v) => v > 0)).join('line')
+	.attr('x1', US.l).attr('x2', US.w - US.r).attr('y1', uy).attr('y2', uy).attr('stroke', '#24384a');
+popisek(usv.append('g').selectAll('text').data(uy.ticks(4).filter((v) => v > 0)).join('text'))
+	.attr('x', US.l - 6).attr('y', (d) => uy(d) + 4).attr('text-anchor', 'end').text((d) => d / 1000 + ' k');
+usv.append('g').selectAll('line').data([udMax, 0, udMin].filter((v, k, a) => a.indexOf(v) === k)).join('line')
+	.attr('x1', US.l).attr('x2', US.w - US.r).attr('y1', ud).attr('y2', ud)
+	.attr('stroke', (d) => (d === 0 ? '#8ea3b3' : '#24384a'));
+popisek(usv.append('g').selectAll('text').data([udMax, 0, udMin].filter((v, k, a) => a.indexOf(v) === k)).join('text'))
+	.attr('x', US.l - 6).attr('y', (d) => ud(d) + 4).attr('text-anchor', 'end')
+	.text((d) => (d === 0 ? '0' : (d > 0 ? '' : '−') + Math.abs(d) / 1000 + ' k'));
+popisek(usv.append('g').selectAll('text').data([2000, 2005, 2010, 2015, 2020, 2025].filter((y) => y <= Y1)).join('text'))
+	.attr('x', ux).attr('y', US.h - 6).attr('text-anchor', (d) => (d === Y1 ? 'end' : 'middle')).text((d) => d);
+const uOsaPopis = popisek(usv.append('text'), '#8ea3b3', 10).attr('x', US.l).attr('y', UH.t + 2);
+const uDolePopis = popisek(usv.append('text'), '#8ea3b3', 11).attr('x', US.l).attr('y', UD.t - 8);
+
+const linKdyby = d3.line().x(ux).y((y) => uy(kdyby(y))).curve(d3.curveMonotoneX);
+const linEmise = d3.line().x(ux).y((y) => uy(emise(y))).curve(d3.curveMonotoneX);
+const plocha = d3.area().x(ux).y0((y) => uy(emise(y))).y1((y) => uy(kdyby(y))).curve(d3.curveMonotoneX);
+const klin = d3.area().x(ux).y0(ud(0)).y1((y) => ud(uspora(y))).curve(d3.curveMonotoneX);
+
+/// Rozseká roky na úseky podle toho, jestli je mezera kladná, nebo záporná.
+/// Vzorkuje po pětinách roku, aby se barva přepnula zhruba tam, kde se křivky
+/// doopravdy protnou, ne až o celý rok dál.
+function useky() {
+	const krok = 0.2;
+	const out = [];
+	let ted = null;
+	for (let y = Y0; y <= Y1 + 1e-9; y += krok) {
+		const kladny = uspora(y) >= 0;
+		if (!ted || ted.kladny !== kladny) {
+			if (ted) { ted.body.push(y); out.push(ted); }
+			ted = { kladny, body: [] };
+			if (out.length) ted.body.push(out.at(-1).body.at(-1));
+		}
+		ted.body.push(y);
+	}
+	if (ted) out.push(ted);
+	return out;
+}
+const USEKY = useky();
+
+/// Vykreslí plochy po úsecích, každý ve své barvě.
+function plochy(kam, tvar, pruhlednost) {
+	kam.selectAll('path.plocha').data(USEKY).join('path').attr('class', 'plocha')
+		.attr('d', (u) => tvar(u.body))
+		.attr('fill', (u) => (u.kladny ? ZELENA : CERVENA))
+		.attr('opacity', pruhlednost);
+}
+
+const bledy = usv.append('g');
+bledy.append('path').attr('d', linKdyby(vsechnyRoky)).attr('fill', 'none').attr('stroke', '#c9a24a')
+	.attr('stroke-width', 2).attr('stroke-dasharray', '5 4').attr('opacity', 0.25);
+bledy.append('path').attr('d', linEmise(vsechnyRoky)).attr('fill', 'none').attr('stroke', '#e8795a')
+	.attr('stroke-width', 2.5).attr('opacity', 0.25);
+const bledyKlin = usv.append('g');
+plochy(bledyKlin, klin, 0.12);
+
+const uclip = usv.append('defs').append('clipPath').attr('id', 'uclip').append('rect')
+	.attr('x', 0).attr('y', 0).attr('height', US.h);
+const uziva = usv.append('g').attr('clip-path', 'url(#uclip)');
+plochy(uziva.append('g'), plocha, 0.45);
+plochy(uziva.append('g'), klin, 0.8);
+uziva.append('path').attr('d', linKdyby(vsechnyRoky)).attr('fill', 'none').attr('stroke', '#c9a24a')
+	.attr('stroke-width', 2).attr('stroke-dasharray', '5 4');
+uziva.append('path').attr('d', linEmise(vsechnyRoky)).attr('fill', 'none').attr('stroke', '#e8795a').attr('stroke-width', 3);
+
+const uPopisKdyby = popisek(usv.append('text'), '#c9a24a').attr('text-anchor', 'end');
+const uPopisEmise = popisek(usv.append('text'), '#e8795a').attr('text-anchor', 'end');
+const uCislo = popisek(usv.append('text'), '#eaf2f7', 13).attr('text-anchor', 'end').attr('font-weight', 700);
+
+function nakresliUsporu(y) {
+	const u = uspora(y);
+	const kladne = u >= 0;
+	el('usporaMt').textContent = f(t.usporaMt, cislo(Math.round(Math.abs(u)), jazyk));
+	el('usporaMt').style.color = kladne ? ZELENA : CERVENA;
+	el('usporaUsetreno').textContent = kladne ? t.usporaUsetreno : f(t.usporaNavic, Y0);
+	const x = ux(Math.min(y, Y1));
+	uclip.attr('width', x);
+	// Popisky patří ke svým křivkám, ale v letech, kdy se křivky skoro
+	// dotýkají, by se slily. Ta vrchní jde nahoru, spodní dolů.
+	const yK = uy(kdyby(y));
+	const yE = uy(emise(y));
+	const kdybyNahore = yK <= yE;
+	uPopisKdyby.attr('x', x - 6).attr('y', kdybyNahore ? yK - 8 : yK + 16).text(f(t.usporaKdyby, Y0));
+	uPopisEmise.attr('x', x - 6).attr('y', kdybyNahore ? yE + 16 : yE - 8).text(t.usporaSkutecne);
+	uCislo.attr('x', x - 6).attr('y', kladne ? Math.min(ud(u) - 7, UD.b - 4) : ud(u) + 15)
+		.text(Math.abs(u) >= 50 ? f(t.usporaMt, cislo(Math.round(Math.abs(u)), jazyk)) : '');
+	// Srovnání: vezmi největší kontinent, který se do úspory ještě vejde.
+	const konty = Object.values(KONT).map((v) => ({ nazev: nazev(v), mt: interp(v.r, y, 2) })).sort((a, b) => b.mt - a.mt);
+	const pod = konty.find((c) => c.mt <= u);
+	el('usporaSrovnani').innerHTML = !kladne ? f(t.usporaHorsi, Y0)
+		: u < 150 ? ''
+			: (pod ? f(t.usporaSrovnaniVic, pod.nazev) : f(t.usporaSrovnaniAsi, konty.at(-1).nazev));
+}
+
+/// Kdy byla mezera záporná — do poznámky pod grafem, ať to nevypadá,
+/// že čistá energie zabírala od začátku.
+function zapornaLeta() {
+	let od = null;
+	let do_ = null;
+	let nej = 0;
+	let nejRok = null;
+	for (const y of vsechnyRoky) {
+		const u = uspora(y);
+		if (u < 0) { if (od === null) od = y; do_ = y; if (u < nej) { nej = u; nejRok = y; } }
+	}
+	return od === null ? '' : f(t.usporaHorsiPozn, od, do_, Y0, nejRok, cislo(Math.round(-nej), jazyk));
+}
+
 // ---------- souboje kontinentů ----------
 const kklice = Object.keys(KONT);
 const KROK = VIDEO ? 72 : 38; // výška jednoho řádku závodu
@@ -420,6 +561,7 @@ function nakresli(y) {
 	el('cap').innerHTML = ev ? `<b>${ev[0]}</b> · ${ev[1][jazyk]}` : '';
 
 	nakresliZapas(y);
+	nakresliUsporu(y);
 	nakresliKontinenty(y);
 	nakresliPopis();
 	if (VIDEO) nakresliVideoTitulek(y);
@@ -446,6 +588,13 @@ function nasazTexty() {
 	el('nmClean').textContent = t.zapasCista;
 	el('nmDirty').textContent = t.zapasSpinava;
 	popisHranice.text(t.zapasHranice);
+	el('usporaNazev').textContent = t.usporaNazev;
+	el('usporaPodtitul').textContent = f(t.usporaPodtitul, Y0);
+	el('usporaUsetreno').textContent = t.usporaUsetreno;
+	uOsaPopis.text(t.usporaOsa);
+	uDolePopis.text(t.usporaDole);
+	el('usporaPozn').innerHTML = f(t.usporaRostly, cislo(DATA.svet[0][5], jazyk), cislo(DATA.svet.at(-1)[5], jazyk))
+		+ ' ' + zapornaLeta() + ' ' + f(t.usporaPozn, Y0);
 	el('kontNazev').textContent = t.kontNazev;
 	el('kontPodtitul').textContent = t.kontPodtitul;
 	el('slunceK').textContent = t.slunceK;
@@ -517,6 +666,7 @@ function nakresliVideoTitulek(y) {
 
 if (VIDEO) {
 	document.body.classList.add('video');
+	if (P.get('scena') === 'emise') document.body.classList.add('emise');
 	if (P.get('kam') === 'eu') priblizNa('eu', true);
 }
 
@@ -529,8 +679,11 @@ if (!VIDEO) {
 	setTimeout(() => playBtn.click(), 700);
 }
 
+// Malé okno dovnitř pro nástroje (natáčení videa, snímky). Bez stop() by
+// jim do nastaveného roku skočilo automatické přehrávání.
 window.SZ = {
-	rok(y) { nakresli(y); },
+	rok(y) { stop(); slider.value = Math.min(Math.max(y, Y0), Y1); nakresli(y); },
+	stop() { stop(); },
 	Y0, Y1,
 	jazyk,
 	pripraveno: true,

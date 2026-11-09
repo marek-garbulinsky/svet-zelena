@@ -37,13 +37,11 @@ const stranka = await prohlizec.newPage();
 await stranka.setViewport({ width: SIRKA, height: VYSKA, deviceScaleFactor: 2 });
 await stranka.goto(`http://localhost:${PORT}/?lang=${LANG}`, { waitUntil: 'networkidle0' });
 await stranka.waitForFunction('window.SZ && window.SZ.pripraveno', { timeout: 20000 });
-// Přehrávání se po načtení rozjede samo, zastavíme ho a ukážeme zvolený rok.
-await stranka.evaluate((y) => {
-	document.getElementById('slider').value = y;
-	document.getElementById('slider').dispatchEvent(new Event('input'));
-	window.SZ.rok(y);
-}, ROK);
-await new Promise((r) => setTimeout(r, 900));
+// Počkej, až doběhne automatické přehrávání po načtení, zastav ho a teprve
+// pak nastav rok — jinak snímek chytí úplně jiný letopočet.
+await new Promise((r) => setTimeout(r, 1200));
+await stranka.evaluate((y) => { window.SZ.stop(); window.SZ.rok(y); }, ROK);
+await new Promise((r) => setTimeout(r, 700));
 await stranka.screenshot({ path: VEN, fullPage: CELA });
 await prohlizec.close();
 server.kill();
