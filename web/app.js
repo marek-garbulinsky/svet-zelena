@@ -424,16 +424,25 @@ uziva.append('path').attr('d', linKdyby(vsechnyRoky)).attr('fill', 'none').attr(
 	.attr('stroke-width', 2).attr('stroke-dasharray', '5 4');
 uziva.append('path').attr('d', linEmise(vsechnyRoky)).attr('fill', 'none').attr('stroke', '#e8795a').attr('stroke-width', 3);
 
-const uPopisKdyby = popisek(usv.append('text'), '#c9a24a').attr('text-anchor', 'end');
-const uPopisEmise = popisek(usv.append('text'), '#e8795a').attr('text-anchor', 'end');
+// V letech, kdy se křivky kříží, leží popisky na čarách; tmavý obrys je drží
+// čitelné, aniž by se musely odstrkovat jinam.
+const uPopisKdyby = popisek(usv.append('text'), '#c9a24a').attr('text-anchor', 'end').attr('class', 'obrys');
+const uPopisEmise = popisek(usv.append('text'), '#e8795a').attr('text-anchor', 'end').attr('class', 'obrys');
 const uCislo = popisek(usv.append('text'), '#eaf2f7', 13).attr('text-anchor', 'end').attr('font-weight', 700);
 
 function nakresliUsporu(y) {
 	const u = uspora(y);
 	const kladne = u >= 0;
-	el('usporaMt').textContent = f(t.usporaMt, cislo(Math.round(Math.abs(u)), jazyk));
+	el('usporaMt').textContent = (kladne ? '−' : '+') + f(t.usporaMt, cislo(Math.round(Math.abs(u)), jazyk));
 	el('usporaMt').style.color = kladne ? ZELENA : CERVENA;
 	el('usporaUsetreno').textContent = kladne ? t.usporaUsetreno : f(t.usporaNavic, Y0);
+	// Vedle úspory vždycky skutečnost, ať se „ušetřili jsme“ nedá přečíst
+	// jako „vypouštíme míň“. Vypouštíme víc. Jen ne tolik, kolik bychom mohli.
+	el('usporaDnesMt').textContent = f(t.usporaMt, cislo(Math.round(emise(y)), jazyk));
+	el('usporaDnes').textContent = f(t.usporaDnes, Y0, cislo(DATA.svet[0][5], jazyk));
+	const rust = Math.round((emise(y) / emise(Y0) - 1) * 100);
+	// V prvních dvou letech by ta věta hlásila růst o nula procent, tak mlčí.
+	el('usporaHlavni').innerHTML = y < Y0 + 2 ? '' : (kladne ? f(t.usporaHlavni, Y0, rust) : f(t.usporaHlavniZap, Y0));
 	const x = ux(Math.min(y, Y1));
 	uclip.attr('width', x);
 	// Popisky patří ke svým křivkám, ale v letech, kdy se křivky skoro
@@ -589,12 +598,12 @@ function nasazTexty() {
 	el('nmDirty').textContent = t.zapasSpinava;
 	popisHranice.text(t.zapasHranice);
 	el('usporaNazev').textContent = t.usporaNazev;
-	el('usporaPodtitul').textContent = f(t.usporaPodtitul, Y0);
+	el('usporaPodtitul').textContent = t.usporaPodtitul;
+	el('usporaGrafPopis').textContent = f(t.usporaGrafPopis, Y0);
 	el('usporaUsetreno').textContent = t.usporaUsetreno;
 	uOsaPopis.text(t.usporaOsa);
 	uDolePopis.text(t.usporaDole);
-	el('usporaPozn').innerHTML = f(t.usporaRostly, cislo(DATA.svet[0][5], jazyk), cislo(DATA.svet.at(-1)[5], jazyk))
-		+ ' ' + zapornaLeta() + ' ' + f(t.usporaPozn, Y0);
+	el('usporaPozn').innerHTML = zapornaLeta() + ' ' + f(t.usporaPozn, Y0);
 	el('kontNazev').textContent = t.kontNazev;
 	el('kontPodtitul').textContent = t.kontPodtitul;
 	el('slunceK').textContent = t.slunceK;

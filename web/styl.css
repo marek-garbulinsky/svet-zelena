@@ -94,9 +94,16 @@ input[type=range]{flex:1;accent-color:var(--acc)}
 .comment{font-size:14px;margin:6px 0 2px}
 .comment b{color:var(--fg)}
 .uspora .k{font-size:13px;color:var(--mut)}
-.usporaCislo{display:flex;align-items:baseline;gap:10px;margin:10px 0 2px}
-.usporaBig{font-size:34px;font-weight:800;color:var(--acc);font-variant-numeric:tabular-nums;line-height:1}
-#uspora{width:100%;height:auto;display:block;margin-top:4px}
+.usporaDvojice{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0 2px}
+.usporaPol{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.usporaBig{font-size:30px;font-weight:800;color:var(--acc);font-variant-numeric:tabular-nums;line-height:1.1}
+.usporaBig.skutecne{color:#e8795a}
+.usporaHlavni{font-size:15px;margin:12px 0 2px}
+.usporaHlavni b{color:var(--fg)}
+.usporaGrafPopis{margin-top:10px}
+#uspora{width:100%;height:auto;display:block;margin-top:2px}
+#uspora text.obrys{paint-order:stroke fill;stroke:var(--card);stroke-width:3px;stroke-linejoin:round}
+@media (max-width:560px){.usporaDvojice{grid-template-columns:1fr;gap:8px}.usporaBig{font-size:26px}}
 .videotit{display:none}
 
 @media (max-width:700px){
@@ -149,8 +156,11 @@ body.video.emise .mapbox,body.video.emise .conts,body.video.emise .videotit{disp
 body.video.emise .uspora{display:block!important;order:2;margin:auto 24px;border-radius:28px;border-width:2px;padding:28px 32px}
 body.video.emise .uspora h3{font-size:42px;margin:0 0 14px}
 body.video.emise .uspora .k{font-size:25px;line-height:1.35}
-body.video.emise .usporaCislo{margin:22px 0 10px;gap:16px}
-body.video.emise .usporaBig{font-size:92px}
+body.video.emise .usporaDvojice{margin:26px 0 12px;gap:20px}
+body.video.emise .usporaPol{padding:18px 22px;border-radius:18px}
+body.video.emise .usporaBig{font-size:62px}
+body.video.emise .usporaHlavni{font-size:28px;line-height:1.3;margin:18px 0 4px}
+body.video.emise .usporaGrafPopis{font-size:21px;margin-top:14px}
 body.video.emise .uspora .comment{font-size:30px;margin-top:20px}
 body.video.emise .uspora .predict{font-size:19px;line-height:1.4;margin-top:14px}
 body.video.emise #uspora text{font-size:15px}
