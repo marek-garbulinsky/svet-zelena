@@ -522,15 +522,25 @@ function nakresliNovou(y) {
 	const rok = Math.min(Math.max(Math.round(y), Y0 + 1), Y1);
 	const p = PRIRUSTKY.find((x) => x.rok === rok);
 	sloupce.attr('opacity', (x) => (x.rok <= rok ? 1 : 0.18));
+	// Vedle podílu na přírůstku vždycky podíl na celku. Sto procent přírůstku
+	// totiž svádí ke čtení „čistá elektřina pokryla celý svět“, a to je omyl
+	// o celý řád: čistých je zatím 42 % výroby, ne 104 %.
+	const celkem = wv(rok, 0);
+	el('novaCelkemProc').textContent = Math.round(celkem) + ' %';
 	if (p.podil === null) {
 		el('novaProc').textContent = '—';
 		el('novaProc').style.color = '#8ea3b3';
 		el('novaVeta').textContent = t.novaRecese;
+		el('novaPozn').innerHTML = novaPoznamka();
 	} else {
 		el('novaProc').textContent = Math.round(p.podil) + ' %';
 		el('novaProc').style.color = p.podil >= 100 ? ZELENA : '#c9a24a';
 		el('novaVeta').textContent = f(p.podil >= 100 ? t.novaVetaNad : t.novaVetaPod,
 			cislo(Math.round(p.dc), jazyk), cislo(Math.round(p.dg), jazyk));
+		const vyroba = wv(rok, 4);
+		el('novaPozn').innerHTML = f(t.novaCelkemPozn, Math.round(p.podil),
+			cislo(Math.round(vyroba * celkem / 100), jazyk), cislo(Math.round(vyroba), jazyk),
+			cislo(Math.round(vyroba * (100 - celkem) / 100), jazyk)) + ' ' + novaPoznamka();
 	}
 }
 
@@ -678,7 +688,7 @@ function nasazTexty() {
 	el('novaNazev').textContent = t.novaNazev;
 	el('novaPodtitul').textContent = t.novaPodtitul;
 	el('novaPopis').textContent = t.novaPopis;
-	el('novaPozn').textContent = novaPoznamka();
+	el('novaCelkem').textContent = t.novaCelkem;
 	nOsaPopis.text(t.novaOsa);
 	el('kontNazev').textContent = t.kontNazev;
 	el('kontPodtitul').textContent = t.kontPodtitul;
