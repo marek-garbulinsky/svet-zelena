@@ -109,7 +109,7 @@ export const T = {
 
 		pozn1: 'Slunce: na zemský povrch dopadá v průměru asi 89 000 TW. Česko spotřebuje zhruba 1,6 EJ primární energie ročně. Sluneční čtverec: náhrada fosilních paliv (asi 520 EJ) po elektrifikaci odpovídá zhruba 60 000 TWh elektřiny; při 150 kWh/m² pozemku a rok to dá asi 400 000 km², tedy čtverec 630 × 630 km.',
 		pozn2: 'Kontinenty podle regionů Emberu, Latinská Amerika včetně Karibiku, Blízký východ zvlášť.',
-		pozn3: 'Data: <a href="https://ember-energy.org/data/yearly-electricity-data/">Ember – Yearly electricity data</a>, licence CC BY 4.0. Čisté = obnovitelné zdroje + jádro. U zemí bez dat za poslední rok se drží poslední známá hodnota. Přepočet na vlaky: 1 TWh z černého uhlí ≈ 400 000 t uhlí; vlak má 50 vagónů po 60 t a je dlouhý asi 800 m. Data za {0}, stažená {1}.',
+		pozn3: 'Data: <a href="https://ember-energy.org/data/yearly-electricity-data/">Ember – Yearly electricity data</a>, licence CC BY 4.0. Čisté = obnovitelné zdroje + jádro. U zemí bez dat za poslední rok se drží poslední známá hodnota. Přepočet na vlaky: 1 TWh z černého uhlí ≈ 400 000 t uhlí; vlak má 50 vagónů po 60 t a je dlouhý asi 800 m. Data za {0}, naposledy obnovená {1}.',
 	},
 
 	en: {
@@ -178,7 +178,7 @@ export const T = {
 
 		pozn1: 'The Sun: about 89,000 TW reaches the Earth’s surface on average. Czechia uses roughly 1.6 EJ of primary energy a year. The solar square: replacing fossil fuels (about 520 EJ) after electrification needs some 60,000 TWh of electricity; at 150 kWh per m² of land per year that is about 400,000 km², a square of 630 × 630 km.',
 		pozn2: 'Continents follow Ember’s regions: Latin America includes the Caribbean, the Middle East is counted separately.',
-		pozn3: 'Data: <a href="https://ember-energy.org/data/yearly-electricity-data/">Ember – Yearly electricity data</a>, CC BY 4.0. Clean = renewables + nuclear. Countries without data for the latest year keep their last known value. Trainloads: 1 TWh of hard coal ≈ 400,000 t; a train has 50 wagons of 60 t and is about 800 m long. Data through {0}, downloaded {1}.',
+		pozn3: 'Data: <a href="https://ember-energy.org/data/yearly-electricity-data/">Ember – Yearly electricity data</a>, CC BY 4.0. Clean = renewables + nuclear. Countries without data for the latest year keep their last known value. Trainloads: 1 TWh of hard coal ≈ 400,000 t; a train has 50 wagons of 60 t and is about 800 m long. Data through {0}, last updated {1}.',
 	},
 };
 

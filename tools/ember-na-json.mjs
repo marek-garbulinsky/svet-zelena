@@ -148,10 +148,23 @@ for (const [klic, cs, en, emoji, nazev] of KONTINENTY) {
 	if (r) vystupKont[klic] = { cs, en, emoji, r: r.rada };
 }
 
+/// Datum znamená „kdy se data naposledy změnila“, ne „kdy jsme to pustili“.
+/// Kdyby se přepisovalo při každém běhu, měsíční Action by commitovala pokaždé
+/// jediný změněný řádek s datumem, i když Ember nevydal nic nového.
+function datumZmeny(novy) {
+	try {
+		const stary = JSON.parse(readFileSync(cestaVen, 'utf8'));
+		const { vyrobeno, ...zbytekStary } = stary;
+		const { vyrobeno: _, ...zbytekNovy } = novy;
+		if (JSON.stringify(zbytekStary) === JSON.stringify(zbytekNovy)) return vyrobeno;
+	} catch (e) { /* soubor ještě není nebo je rozbitý */ }
+	return new Date().toISOString().slice(0, 10);
+}
+
 const vystup = {
 	rok0: ROK0,
 	rok1: ROK1,
-	vyrobeno: new Date().toISOString().slice(0, 10),
+	vyrobeno: null,
 	zdroj: 'Ember – Yearly electricity data, CC BY 4.0',
 	zdrojOdkaz: 'https://ember-energy.org/data/yearly-electricity-data/',
 	polozky: POL,
@@ -159,6 +172,7 @@ const vystup = {
 	svet: svet.rada,
 	kontinenty: vystupKont,
 };
+vystup.vyrobeno = datumZmeny(vystup);
 writeFileSync(cestaVen, JSON.stringify(vystup) + '\n');
 
 // ---------- kontrola ----------
