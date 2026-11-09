@@ -152,7 +152,17 @@ body.video svg#map{width:100%;height:auto}
 body.video .caption{left:28px;top:28px;font-size:30px;padding:14px 20px;border-radius:18px;max-width:84%}
 /* Druhá scéna videa: místo mapy a závodu kontinentů jen graf ušetřeného CO₂.
    Pouští se jako ?video=1&scena=emise. */
-body.video.emise .mapbox,body.video.emise .conts,body.video.emise .videotit{display:none!important}
+body.video.emise .mapbox,body.video.emise .conts,body.video.emise .videotit,
+body.video.prirustek .mapbox,body.video.prirustek .conts,body.video.prirustek .videotit{display:none!important}
+body.video.emise #novaKarta,body.video.prirustek #usporaKarta{display:none!important}
+body.video.prirustek .uspora{display:block!important;order:2;margin:24px 24px auto;border-radius:28px;border-width:2px;padding:30px 34px}
+body.video.prirustek .uspora h3{font-size:42px;margin:0 0 14px}
+body.video.prirustek .uspora .k{font-size:25px;line-height:1.35}
+body.video.prirustek .usporaDvojice{margin:26px 0 12px}
+body.video.prirustek .usporaBig{font-size:76px}
+body.video.prirustek .uspora .predict{font-size:19px;line-height:1.4;margin-top:16px}
+body.video.prirustek .usporaHlavni{font-size:28px;line-height:1.3;margin:18px 0 4px}
+body.video.prirustek #nova text{font-size:15px}
 body.video.emise .uspora{display:block!important;order:2;margin:auto 24px;border-radius:28px;border-width:2px;padding:28px 32px}
 body.video.emise .uspora h3{font-size:42px;margin:0 0 14px}
 body.video.emise .uspora .k{font-size:25px;line-height:1.35}

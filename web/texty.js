@@ -103,6 +103,15 @@ export const T = {
 		usporaSrovnaniAsi: 'Zhruba tolik, kolik vypustí z elektřiny celá {0}.',
 		usporaPozn: 'Výpočet drží mix zdrojů z roku {0} a nechává růst jen výrobu. Část toho zlepšení ale neudělaly obnovitelné zdroje a jádro, nýbrž náhrada uhlí plynem.',
 
+		novaNazev: '⚡ Kolik z nové elektřiny pokryly čisté zdroje',
+		novaPodtitul: 'Spotřeba každý rok povyroste. Sloupec říká, jakou část toho přírůstku zvládly obnovitelné zdroje a jádro. Nad sto procenty už fosilních elektráren ubývá.',
+		novaPopis: 'z letošního přírůstku pokryly čisté zdroje',
+		novaVetaNad: 'Čisté zdroje letos přidaly {0} TWh, spotřeba vyrostla o {1} TWh. Na fosilní elektrárny nezbylo nic — ubraly, a emise se nehnuly.',
+		novaVetaPod: 'Čisté zdroje letos přidaly {0} TWh, ale spotřeba vyrostla o {1} TWh. Zbytek musely dodat fosilní elektrárny, takže emise stouply.',
+		novaRecese: 'Spotřeba ten rok klesla, podíl na přírůstku nedává smysl.',
+		novaOsa: '% přírůstku spotřeby',
+		novaPozn: 'Přes sto procent se svět dostal i dřív, v letech {0}. Tehdy ale spotřeba vyrostla jen o {1} TWh, kdežto v roce {2} o {3}. Šedé roky ({4}) do srovnání nepatří: spotřeba v nich klesla, protože přišla krize a covid.',
+
 		slunceK: 'Od chvíle, kdy jsi otevřel tuhle stránku, poslalo Slunce na Zemi tolik energie, kolik Česko spotřebuje za',
 		slunceSub: 'Celoroční spotřebu celého lidstva Slunce dodá zhruba za 2 hodiny. Využíváme z toho zlomek promile.',
 		ctverecTlacitko: '☀️ Kolik Sahary by stačilo?',
@@ -191,6 +200,15 @@ export const T = {
 		usporaSrovnaniAsi: 'About as much as all of {0} emits from electricity.',
 		usporaPozn: 'The calculation freezes the {0} mix of sources and lets only generation grow. Part of that improvement came from gas replacing coal, not from renewables and nuclear.',
 
+		novaNazev: '⚡ How much of the new electricity clean sources covered',
+		novaPodtitul: 'Demand grows every year. The bar shows how much of that growth renewables and nuclear handled. Above one hundred per cent, fossil plants are shrinking.',
+		novaPopis: 'of this year’s growth was covered by clean sources',
+		novaVetaNad: 'Clean sources added {0} TWh this year, demand grew by {1} TWh. Nothing was left for fossil plants — they shrank, and emissions held still.',
+		novaVetaPod: 'Clean sources added {0} TWh this year, but demand grew by {1} TWh. Fossil plants had to supply the rest, so emissions rose.',
+		novaRecese: 'Demand fell that year, so a share of growth makes no sense.',
+		novaOsa: '% of demand growth',
+		novaPozn: 'The world passed one hundred per cent before, in {0}. But demand then grew by only {1} TWh, against {3} in {2}. The grey years ({4}) do not belong in the comparison: demand fell, because of the financial crisis and covid.',
+
 		slunceK: 'Since you opened this page, the Sun has sent the Earth as much energy as Czechia uses in',
 		slunceSub: 'The Sun delivers humanity’s entire yearly energy use in about two hours. We capture a tiny fraction of a per mille.',
 		ctverecTlacitko: '☀️ How much Sahara would do?',
@@ -221,6 +239,13 @@ export const T = {
 };
 
 /// Doplní {0}, {1} … do textu.
+/// Seznam do věty: „2015 a 2019“, „2015, 2017 a 2019“.
+export function vyjmenuj(pole, jazyk) {
+	const a = pole.map(String);
+	if (a.length < 2) return a.join('');
+	return a.slice(0, -1).join(', ') + (jazyk === 'cs' ? ' a ' : ' and ') + a.at(-1);
+}
+
 export function f(sablona, ...a) {
 	return String(sablona).replace(/\{(\d+)\}/g, (_, i) => (a[i] === undefined ? '' : a[i]));
 }

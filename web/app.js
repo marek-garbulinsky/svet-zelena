@@ -3,7 +3,7 @@
 // Data přicházejí hotová z data/elektrina.json (vyrábí je tools/zpracuj-data.mjs
 // z ročního CSV od Our World in Data). Stránka sama nic nepočítá z surových dat,
 // jen z řad hodnot po letech plynule interpoluje a kreslí.
-import { T, UDALOSTI, f, roky, cislo, vyberJazyk, JAZYKY } from './texty.js';
+import { T, TK, UDALOSTI, f, roky, cislo, vyjmenuj, vyberJazyk, JAZYKY } from './texty.js';
 
 const P = new URLSearchParams(location.search);
 const VIDEO = P.has('video');
@@ -476,6 +476,76 @@ function zapornaLeta() {
 	return od === null ? '' : f(t.usporaHorsiPozn, od, do_, Y0, nejRok, cislo(Math.round(-nej), jazyk));
 }
 
+// ---------- kolik z nové elektřiny pokryly čisté zdroje ----------
+// Nejpoctivější způsob, jak ukázat, že se růst emisí zastavil. Každý rok
+// spotřeba povyroste; sloupec říká, jakou část toho přírůstku zvládly čisté
+// zdroje. Nad sto procenty fosilních elektráren ubývá a emise klesají.
+//
+// Roky, kdy spotřeba klesla (2009 a 2020, krize a covid), jsou šedé: podíl na
+// přírůstku v nich nedává smysl a emise tehdy spadly z úplně jiného důvodu.
+// Bez toho rozlišení by stránka tvrdila, že covid byl úspěch čisté energie.
+const NV = { w: 600, h: 220, l: 46, r: 12, t: 16, b: 24 };
+const nsv = d3.select('#nova');
+const genR = (i) => DATA.svet[i][4];
+const cistaR = (i) => DATA.svet[i][4] * DATA.svet[i][0] / 100;
+const ROKY_PRIR = vsechnyRoky.slice(1);
+const PRIRUSTKY = ROKY_PRIR.map((y) => {
+	const i = y - Y0;
+	const dg = genR(i) - genR(i - 1);
+	const dc = cistaR(i) - cistaR(i - 1);
+	return { rok: y, dg, dc, podil: dg > 0 ? dc / dg * 100 : null };
+});
+const nx = d3.scaleBand().domain(ROKY_PRIR).range([NV.l, NV.w - NV.r]).padding(0.22);
+const nyMax = Math.max(120, Math.ceil(Math.max(...PRIRUSTKY.map((p) => p.podil ?? 0)) / 20) * 20);
+const ny = d3.scaleLinear().domain([Math.min(-10, ...PRIRUSTKY.map((p) => p.podil ?? 0)), nyMax]).range([NV.h - NV.b, NV.t]);
+
+nsv.append('g').selectAll('line').data([0, 50, 100]).join('line')
+	.attr('x1', NV.l).attr('x2', NV.w - NV.r).attr('y1', ny).attr('y2', ny)
+	.attr('stroke', (d) => (d === 100 ? '#4cc27a' : '#24384a'))
+	.attr('stroke-dasharray', (d) => (d === 100 ? '5 4' : null));
+nsv.append('g').selectAll('text').data([0, 50, 100]).join('text')
+	.attr('x', NV.l - 6).attr('y', (d) => ny(d) + 4).attr('text-anchor', 'end')
+	.attr('font-size', 11).attr('fill', (d) => (d === 100 ? '#4cc27a' : '#8ea3b3')).text((d) => d + ' %');
+nsv.append('g').selectAll('text').data(ROKY_PRIR.filter((y) => y % 5 === 0)).join('text')
+	.attr('x', (d) => nx(d) + nx.bandwidth() / 2).attr('y', NV.h - 6).attr('text-anchor', 'middle')
+	.attr('font-size', 11).attr('fill', '#8ea3b3').text((d) => d);
+const nOsaPopis = nsv.append('text').attr('x', NV.l).attr('y', NV.t - 4).attr('font-size', 10).attr('fill', '#8ea3b3');
+
+const sloupce = nsv.append('g').selectAll('rect').data(PRIRUSTKY).join('rect')
+	.attr('x', (p) => nx(p.rok)).attr('width', nx.bandwidth())
+	.attr('y', (p) => (p.podil === null ? NV.t : ny(Math.max(0, p.podil))))
+	.attr('height', (p) => (p.podil === null ? NV.h - NV.b - NV.t : Math.abs(ny(p.podil) - ny(0))))
+	.attr('rx', 2)
+	.attr('fill', (p) => (p.podil === null ? '#2a3a48' : p.podil >= 100 ? ZELENA : '#c9a24a'));
+
+function nakresliNovou(y) {
+	const rok = Math.min(Math.max(Math.round(y), Y0 + 1), Y1);
+	const p = PRIRUSTKY.find((x) => x.rok === rok);
+	sloupce.attr('opacity', (x) => (x.rok <= rok ? 1 : 0.18));
+	if (p.podil === null) {
+		el('novaProc').textContent = '—';
+		el('novaProc').style.color = '#8ea3b3';
+		el('novaVeta').textContent = t.novaRecese;
+	} else {
+		el('novaProc').textContent = Math.round(p.podil) + ' %';
+		el('novaProc').style.color = p.podil >= 100 ? ZELENA : '#c9a24a';
+		el('novaVeta').textContent = f(p.podil >= 100 ? t.novaVetaNad : t.novaVetaPod,
+			cislo(Math.round(p.dc), jazyk), cislo(Math.round(p.dg), jazyk));
+	}
+}
+
+/// Poznámka pod grafem: kdy už svět přes sto procent byl a které roky do
+/// srovnání nepatří. Počítá se z dat, ať zůstane pravdivá i za rok.
+function novaPoznamka() {
+	const letosni = PRIRUSTKY.at(-1);
+	const drive = PRIRUSTKY.filter((p) => p.podil !== null && p.podil >= 100 && p.rok !== letosni.rok);
+	const sede = PRIRUSTKY.filter((p) => p.podil === null).map((p) => p.rok);
+	if (!drive.length) return '';
+	const nejvetsiDrive = Math.max(...drive.map((p) => p.dg));
+	return f(t.novaPozn, vyjmenuj(drive.map((p) => p.rok), jazyk), cislo(Math.round(nejvetsiDrive), jazyk),
+		letosni.rok, cislo(Math.round(letosni.dg), jazyk), vyjmenuj(sede, jazyk));
+}
+
 // ---------- souboje kontinentů ----------
 const kklice = Object.keys(KONT);
 const KROK = VIDEO ? 72 : 38; // výška jednoho řádku závodu
@@ -571,6 +641,7 @@ function nakresli(y) {
 
 	nakresliZapas(y);
 	nakresliUsporu(y);
+	nakresliNovou(y);
 	nakresliKontinenty(y);
 	nakresliPopis();
 	if (VIDEO) nakresliVideoTitulek(y);
@@ -604,6 +675,11 @@ function nasazTexty() {
 	uOsaPopis.text(t.usporaOsa);
 	uDolePopis.text(t.usporaDole);
 	el('usporaPozn').innerHTML = zapornaLeta() + ' ' + f(t.usporaPozn, Y0);
+	el('novaNazev').textContent = t.novaNazev;
+	el('novaPodtitul').textContent = t.novaPodtitul;
+	el('novaPopis').textContent = t.novaPopis;
+	el('novaPozn').textContent = novaPoznamka();
+	nOsaPopis.text(t.novaOsa);
 	el('kontNazev').textContent = t.kontNazev;
 	el('kontPodtitul').textContent = t.kontPodtitul;
 	el('slunceK').textContent = t.slunceK;
@@ -675,7 +751,8 @@ function nakresliVideoTitulek(y) {
 
 if (VIDEO) {
 	document.body.classList.add('video');
-	if (P.get('scena') === 'emise') document.body.classList.add('emise');
+	const scena = P.get('scena');
+	if (scena === 'emise' || scena === 'prirustek') document.body.classList.add(scena);
 	if (P.get('kam') === 'eu') priblizNa('eu', true);
 }
 
