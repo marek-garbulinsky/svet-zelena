@@ -76,8 +76,8 @@ závod kontinentů, skóre světa dole), projede roky **po snímcích** a slož�
 Nic se nepřehrává v reálném čase, takže video vypadá stejně i na pomalém počítači.
 
 Volby: `--od`, `--do`, `--sekundy`, `--fps`, `--lang cs|en`, `--kam svet|eu`, `--ven cesta.mp4`
-a `--scena mapa|emise|prirustek` (mapa se závodem kontinentů / graf ušetřeného CO₂ /
-sloupce „kolik z nové elektřiny pokryly čisté zdroje“).
+a `--scena mapa|prirustek` (mapa se závodem kontinentů / sloupce „kolik z přírůstku
+spotřeby pokryly čisté zdroje“).
 
 Potřebuje Chrome (hledá ho na obvyklých místech, jinde se dá určit `CHROME_PATH`).
 ffmpeg se použije systémový, a když žádný není, ten z balíčku `ffmpeg-static`.
